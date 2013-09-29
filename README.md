@@ -3,17 +3,9 @@
 
 Live-plot data being streamed from an Arduino board over the serial port
 
-Install the following to run it:
-
-Python 2.7
-
 Requires:
+- Python2.7
 - numpy
 - matplotlib
-- wx
+- wx (this is a pain to install)
 - pyserial
-
-
-Notes:
-- On Mac, if you don't have wx installed, you can install it using the [Homebrew](http://brew.sh/) command:
-    brew install wxwidgets
