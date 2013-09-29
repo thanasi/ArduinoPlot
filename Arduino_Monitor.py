@@ -1,13 +1,20 @@
-"""
-Listen to serial, return most recent numeric values
-Lots of help from here:
-http://stackoverflow.com/questions/1093598/pyserial-how-to-read-last-line-sent-from-serial-device
-"""
+#!/usr/bin/env python
+######################
+# Listen to serial, return most recent numeric values
+# Lots of help from here:
+# http://stackoverflow.com/questions/1093598/pyserial-how-to-read-last-line-sent-from-serial-device
+#
+# Modified by A Athanassiadis
+# Sept 2013
+
 from threading import Thread
 import time
 import serial
 
+DPORT = 'com4'
+
 last_received = ''
+
 def receiving(ser):
     global last_received
     buffer = ''
@@ -16,17 +23,20 @@ def receiving(ser):
         if '\n' in buffer:
             lines = buffer.split('\n') # Guaranteed to have at least 2 entries
             last_received = lines[-2]
-            #If the Arduino sends lots of empty lines, you'll lose the
-            #last filled line, so you could make the above statement conditional
-            #like so: if lines[-2]: last_received = lines[-2]
+            # If the Arduino sends lots of empty lines, you'll lose the
+            # last filled line, so you could make the above statement conditional
+            # like so: if lines[-2]: last_received = lines[-2]
             buffer = lines[-1]
 
 
 class SerialData(object):
-    def __init__(self, init=50):
+
+    def __init__(self, port=DPORT):
+        """ allow user to specify Arduino port """
+
         try:
-            self.ser = ser = serial.Serial(
-                port='com4',
+            self.ser = serial.Serial(
+                port=port,
                 baudrate=9600,
                 bytesize=serial.EIGHTBITS,
                 parity=serial.PARITY_NONE,
@@ -34,11 +44,12 @@ class SerialData(object):
                 timeout=0.1,
                 xonxoff=0,
                 rtscts=0,
-                interCharTimeout=None
-            )
+                interCharTimeout=None)
+
         except serial.serialutil.SerialException:
-            #no serial connection
+            # no serial connection
             self.ser = None
+
         else:
             Thread(target=receiving, args=(self.ser,)).start()
         
@@ -54,6 +65,7 @@ class SerialData(object):
                 print 'bogus data',raw_line
                 time.sleep(.005)
         return 0.
+
     def __del__(self):
         if self.ser:
             self.ser.close()
